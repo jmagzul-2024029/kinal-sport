@@ -1,6 +1,6 @@
-import { Spinner } from "../../../shared/components/layout/Spinner.jsx";
-import defaultAvatarImg from "../../../assets/img/avatarDefault.png";
 import { useState } from "react";
+import { Spinner } from "../../../shared/components/layout/Spinner";
+import defaultAvatarImg from "../../../assets/img/avatarDefault.png";
 
 export const UserDetailModal = ({
     isOpen,
@@ -15,16 +15,13 @@ export const UserDetailModal = ({
     const [role, setRole] = useState(user?.role || "USER_ROLE");
 
     const avatarSrc = (() => {
-
         const value = user?.profilePicture?.trim();
         if (!value) return defaultAvatarImg;
 
         if (value.startsWith("http://") || value.startsWith("https://")) {
             return value;
         }
-
-        const cloudinaryBase =
-            import.meta.env.VITE_CLOUDINARY_BASE_URL ||
+        const cloudinaryBase = import.meta.env.VITE_CLOUDINARY_BASE_URL ||
             "https://res.cloudinary.com/dqx1m6nxh/image/upload/";
 
         return `${cloudinaryBase}${value.replace(/^\+/, "")}`;
@@ -38,11 +35,14 @@ export const UserDetailModal = ({
             onClose();
             return;
         }
-
-        await onSaveRole(user.id, role);
-        onClose();
-    };
-
+        // Llamar al handler pasado por props para actualizar el rol en el servidor
+        try {
+            await onSaveRole(user, role);
+        } catch (err) {
+            // onSaveRole ya debe mostrar errores; aquí dejamos pasar el error silenciosamente
+            console.error("Error saving role:", err);
+        }
+    }
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 px-3 sm:px-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
@@ -73,7 +73,7 @@ export const UserDetailModal = ({
                         />
                         <div>
                             <p className="font-bold text-gray-900 text-lg">
-                                {[user.name, user.surname].filter(Boolean).join(" ")}
+                                {[user.name, user.surname].filter(Boolean).join("")}
                             </p>
                             <p className="text-sm text-gray-600">@{user.username}</p>
                         </div>
@@ -94,7 +94,7 @@ export const UserDetailModal = ({
                         </div>
                         <div className="bg-gray-50 rounded-lg p-3">
                             <p className="text-xs text-gray-500">Apellido</p>
-                            <p className="text-sm font-medium">{user.surname || "-"}</p>
+                            <p className="text-sm font-medium">{user.surname}</p>
                         </div>
                     </div>
 
@@ -111,9 +111,10 @@ export const UserDetailModal = ({
                             <option value="USER_ROLE">USER_ROLE</option>
                             <option value="ADMIN_ROLE">ADMIN_ROLE</option>
                         </select>
+
                         {isCurrentUser && (
-                            <p className="text-xs text-gray-500 mt-1">
-                                No puedes cambiar tu propio usuario
+                            <p className="mt-1 text-xs text-red-500">
+                                No puedes cambiar tu propio rol.
                             </p>
                         )}
                     </div>

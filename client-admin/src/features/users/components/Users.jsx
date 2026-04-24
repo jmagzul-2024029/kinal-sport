@@ -1,30 +1,35 @@
-import { useEffect, useMemo, useState } from "react"
-import { useUserManagementStore } from "../store/useUserManagmentStore.js"
-import { Spinner } from "../../../shared/components/layout/Spinner.jsx"
-import { showError, showSuccess } from "../../../shared/utils/toast.js"
-import { CreateUserModal } from "./CreateUserModal.jsx"
-import { useAuthStore } from "../../auth/store/authStore.js"
-import { UserDetailModal } from "./UserDetailModal.jsx"
-import { updateUserRole } from "../../../shared/api/auth.js"
+import { useEffect, useMemo, useState } from "react";
+import { useUserManagementStore } from "../store/useUserManagmentStore.js";
+import { Spinner } from "../../../shared/components/layout/Spinner.jsx";
+import { showError, showSuccess } from "../../../shared/utils/toast.js";
+import { CreateUserModal } from "./CreateUserModal.jsx";
+import { useAuthStore } from "../../auth/store/authStore.js";
+import { UserDetailModal } from "./UserDetailModal.jsx";
+import { updateUserRole } from "../../../shared/api/index.js";
 
 const PAGE_SIZE = 8;
 
 export const Users = () => {
-
+    //vienen del useUserManagementStore, que es un hook personalizado que maneja el estado de los usuarios, la carga y los errores. fetchUsers es una función que se llama para obtener los usuarios desde el backend.
+    //store
     const { users, loading, error, fetchUsers, updateUserRole } = useUserManagementStore();
-    const registerUser = useAuthStore((state) => state.register);
-    const CurrentUser = useAuthStore((state) => state.user);
 
-    const [search, setSearch] = useState("");
-    const [roleFilter, setFilter] = useState("ALL");
+    const registerUser = useAuthStore((state) => state.register);
+    const currentUser = useAuthStore((state) => state.user);
+
+    const [search, setSearch] = useState(""); //para busquedas
+
+    const [roleFilter, setRoleFilter] = useState("ALL"); //para filtrar por rol
+
     const [page, setPage] = useState(1);
+
     const [openCreateModal, setOpenCreateModal] = useState(false);
     const [openDetailModal, setOpenDetailModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
         fetchUsers();
-    }, [fetchUsers])
+    }, [fetchUsers]);
 
     useEffect(() => {
         if (error) {
@@ -34,37 +39,42 @@ export const Users = () => {
 
     const handleSaveRole = async (user, newRole) => {
         const res = await updateUserRole(user.id, newRole);
-        if (res.success) {
-            showSuccess("Rol actualizado correctamente")
+        if (res && res.success) {
+            showSuccess("Rol actualizado correctamente");
             setOpenDetailModal(false);
             setSelectedUser(null);
-        } else {
-            showError(res.error || "No se pudo actualizar el rol")
+            return res;
         }
+
+        // Mostrar error sólo si la actualización falló
+        showError(res?.error || "No se pudo actualizar el rol.");
+        return res;
     }
+
 
     const handleOpenDetail = (user) => {
-        setSelectedUser(user)
-        setOpenDetailModal(true)
-    }
+        setSelectedUser(user);
+        setOpenDetailModal(true);
+        //abrira los detalles del usuario seleccionado (objeto)
+    };
 
-    const handleCreate = async (formData) => {
-        const res = await registerUser(formData)
-        console.log(res)
+    const handledCreate = async (formData) => {
+        //recibe los datos para el crear (cuando el estado de setOpen pase a true)
+        const res = await registerUser(formData);
         if (res.success) {
-            showSuccess("Usuario creado. Se envió correo de verificación.");
+            showSuccess("Usuario creado, se envio un correo de verificacion");
             await fetchUsers(undefined, { force: true });
             return true;
         }
-        showError(res.error || "No se pudo crear el usuario");
+        showError(res.error || "No se pudo crear le usuario");
         return false;
-    }
+    };
+    if (loading && users.length === 0) return <Spinner />;
 
-    if (loading && users.length === 0) return <Spinner />
+    //renderuzar cada uno de ellos en lso compontentes
 
     return (
         <div className="p-4">
-
             {/* Header */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
                 <div>
@@ -76,7 +86,7 @@ export const Users = () => {
 
                 <button
                     className="bg-main-blue px-4 py-2 rounded text-white hover:opacity-90 transition"
-                    onClick={() => setOpenCreateModal(true)}
+                    onClick={() => setOpenCreateModal(true)} //activara el creatModal (componente)
                 >
                     + Agregar Usuario
                 </button>
@@ -101,7 +111,6 @@ export const Users = () => {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-sm">
-
                         {/* Head */}
                         <thead className="bg-gray-50 text-gray-700">
                             <tr>
@@ -114,7 +123,7 @@ export const Users = () => {
 
                         {/* Body (datos de ejemplo) */}
                         <tbody>
-                            {users.length === 0 ? (
+                            {users.length === 0 ? ( //si no hay usuarios, mostrar un mensaje de estado vacío
                                 <tr>
                                     <td
                                         className="px-4 py-6 text-center text-gray-500"
@@ -129,14 +138,14 @@ export const Users = () => {
                                         <td className="px-4 py-3 font-medium text-gray-800">
                                             {[u.name, u.surname].filter(Boolean).join(" ") || "-"}
                                         </td>
-                                        <td className="px-4 py-3 text-gray-700">
-                                            @{u.username}
-                                        </td>
+                                        <td className="px-4 py-3 text-gray-700">@{u.username}</td>
                                         <td className="px-4 py-3">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.role === "ADMIN_ROLE"
-                                                ? "bg-blue-100 text-blue-700"
-                                                : "bg-gray-100 text-gray-700"
-                                                }`}>
+                                            <span
+                                                className={`px-2 py-1 rounded-full text-xs font-semibold ${u.role === "ADMIN_ROLE"
+                                                        ? "bg-blue-100 text-blue-700"
+                                                        : "bg-gray-100 text-gray-700"
+                                                    }`}
+                                            >
                                                 {u.role}
                                             </span>
                                         </td>
@@ -157,18 +166,14 @@ export const Users = () => {
 
                 {/* Paginación */}
                 <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
-                    <p className="text-xs text-gray-600">
-                        Mostrando 1 - 8 de 20
-                    </p>
+                    <p className="text-xs text-gray-600">Mostrando 1 - 8 de 20</p>
 
                     <div className="flex gap-2">
                         <button className="px-3 py-1.5 rounded border bg-white text-sm">
                             Anterior
                         </button>
 
-                        <span className="px-2 py-1.5 text-sm text-gray-700">
-                            1 / 3
-                        </span>
+                        <span className="px-2 py-1.5 text-sm text-gray-700">1 / 3</span>
 
                         <button className="px-3 py-1.5 rounded border bg-white text-sm">
                             Siguiente
@@ -176,27 +181,26 @@ export const Users = () => {
                     </div>
                 </div>
             </div>
-
             <CreateUserModal
+                //componentes de CreateUserModal (propps)
                 isOpen={openCreateModal}
                 onClose={() => setOpenCreateModal(false)}
-                onCreate={handleCreate}
+                onCreate={handledCreate}
                 loading={loading}
                 error={error}
             />
-
             <UserDetailModal
                 key={selectedUser?.id || "no-user"}
                 isOpen={openDetailModal}
-                onClose={ () => {
-                    setOpenDetailModal(false)
+                onClose={() => {
+                    setOpenDetailModal(false);
                     setSelectedUser(null);
                 }}
                 user={selectedUser}
                 loading={loading}
                 onSaveRole={handleSaveRole}
-                currentUserId={CurrentUser?.id}
+                currentUserId={currentUser?.id}
             />
         </div>
     );
-}
+};
