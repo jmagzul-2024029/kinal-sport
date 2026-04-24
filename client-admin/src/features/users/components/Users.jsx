@@ -13,16 +13,12 @@ export const Users = () => {
     //vienen del useUserManagementStore, que es un hook personalizado que maneja el estado de los usuarios, la carga y los errores. fetchUsers es una función que se llama para obtener los usuarios desde el backend.
     //store
     const { users, loading, error, fetchUsers, updateUserRole } = useUserManagementStore();
-
     const registerUser = useAuthStore((state) => state.register);
-    const currentUser = useAuthStore((state) => state.user);
+    const currentUser = useAuthStore((state) => state.user)
 
-    const [search, setSearch] = useState(""); //para busquedas
-
-    const [roleFilter, setRoleFilter] = useState("ALL"); //para filtrar por rol
-
+    const [search, setSearch] = useState("");
+    const [roleFilter, setRoleFilter] = useState("ALL");
     const [page, setPage] = useState(1);
-
     const [openCreateModal, setOpenCreateModal] = useState(false);
     const [openDetailModal, setOpenDetailModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -36,6 +32,50 @@ export const Users = () => {
             showError(error);
         }
     }, [error])
+
+    const filteredUsers = useMemo(() => {
+
+        // Normaliza el texto de búsqueda || - trim(): elimina espacios al inicio y al final || - toLowerCase(): convierte todo a minúsculas
+        const normalizedSearch = search.trim().toLowerCase();
+
+        // Filtra la lista de usuarios
+        return users.filter((u) => {
+
+            // Construye el nombre completo del usuario || Si name o surname no existen, usa string vacío || Luego elimina espacios extra y pasa a minúsculas
+            const fullName = `${u.name || ""} ${u.surname || ""}`
+                .trim()
+                .toLowerCase();
+
+            // Obtiene el username en minúsculas
+            const username = (u.username || "").toLowerCase();
+
+            // Obtiene el rol en mayúsculas para comparar de forma consistente
+            const role = (u.role || "").toUpperCase();
+
+            // Verifica si coincide con la búsqueda || - Si no hay texto de búsqueda → acepta todos (true) || - Si hay texto → busca coincidencias en nombre completo o username
+            const matchesSearch =
+                !normalizedSearch ||
+                fullName.includes(normalizedSearch) ||
+                username.includes(normalizedSearch);
+
+            // Verifica si coincide con el filtro de rol ||- Si el filtro es "ALL" → acepta todos  || - Si no → compara el rol del usuario con el filtro
+            const matchesRole =
+                roleFilter === "ALL" ? true : role === roleFilter.toUpperCase();
+
+            // Devuelve true solo si cumple ambas condiciones
+            return matchesRole && matchesSearch
+        });
+
+        // useMemo solo recalcula el resultado si cambian estas dependencias
+    }, [users, search, roleFilter]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE))
+    const currentPage = Math.min(page, totalPages);
+
+    const paginatedUsers = useMemo(() => { //mandar a traer los usuarios para mostrarlos en la página
+        const start = (currentPage - 1) * PAGE_SIZE
+        return filteredUsers.slice(start, start + PAGE_SIZE) //traer todos los usuarios, slice para partir el espacio en dos
+    }, [filteredUsers, currentPage]);
 
     const handleSaveRole = async (user, newRole) => {
         const res = await updateUserRole(user.id, newRole);
@@ -96,13 +136,25 @@ export const Users = () => {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value)
+                            setPage(1)
+                        }}
                         placeholder="Buscar por nombre o username..."
                         className="md:col-span-2 w-full px-3 py-2 border rounded-lg"
                     />
-                    <select className="w-full px-3 py-2 border rounded-lg">
-                        <option>Todos los roles</option>
-                        <option>ADMIN_ROLE</option>
-                        <option>USER_ROLE</option>
+                    <select
+                        value={roleFilter}
+                        onChange={(e) => {
+                            setRoleFilter(e.target.value)
+                            setPage(1)
+                        }}
+                        className="w-full px-3 py-2 border rounded-lg"
+                    >
+                        <option value="ALL">Todos los roles</option>
+                        <option value="ADMIN_ROLE">ADMIN_ROLE</option>
+                        <option value="USER_ROLE">USER_ROLE</option>
                     </select>
                 </div>
             </div>
@@ -123,7 +175,7 @@ export const Users = () => {
 
                         {/* Body (datos de ejemplo) */}
                         <tbody>
-                            {users.length === 0 ? ( //si no hay usuarios, mostrar un mensaje de estado vacío
+                            {paginatedUsers.length === 0 ? ( //si no hay usuarios, mostrar un mensaje de estado vacío
                                 <tr>
                                     <td
                                         className="px-4 py-6 text-center text-gray-500"
@@ -133,7 +185,7 @@ export const Users = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                users.map((u) => (
+                                paginatedUsers.map((u) => (
                                     <tr key={u.id} className="border-t hover:bg-gray-50">
                                         <td className="px-4 py-3 font-medium text-gray-800">
                                             {[u.name, u.surname].filter(Boolean).join(" ") || "-"}
@@ -142,8 +194,8 @@ export const Users = () => {
                                         <td className="px-4 py-3">
                                             <span
                                                 className={`px-2 py-1 rounded-full text-xs font-semibold ${u.role === "ADMIN_ROLE"
-                                                        ? "bg-blue-100 text-blue-700"
-                                                        : "bg-gray-100 text-gray-700"
+                                                    ? "bg-blue-100 text-blue-700"
+                                                    : "bg-gray-100 text-gray-700"
                                                     }`}
                                             >
                                                 {u.role}
@@ -166,16 +218,30 @@ export const Users = () => {
 
                 {/* Paginación */}
                 <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
-                    <p className="text-xs text-gray-600">Mostrando 1 - 8 de 20</p>
+                    <p className="text-xs text-gray-600">
+                        Mostrando {" "}
+                        {(currentPage - 1) * PAGE_SIZE + (paginatedUsers.length ? 1 : 0)} {/* Si hay usuario en la página 1, se suma 1, si no, se suma 0 */}
+                        {" - "}
+                        {(currentPage - 1) * PAGE_SIZE + paginatedUsers.length} de{" "}
+                        {filteredUsers.length}
+                    </p>
 
                     <div className="flex gap-2">
-                        <button className="px-3 py-1.5 rounded border bg-white text-sm">
+                        <button
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={currentPage === 1} /* Se deshabilita el botón si sólo hay una página */
+                            className="px-3 py-1.5 rounded border bg-white text-sm">
                             Anterior
                         </button>
 
-                        <span className="px-2 py-1.5 text-sm text-gray-700">1 / 3</span>
+                        <span className="px-2 py-1.5 text-sm text-gray-700">
+                            {currentPage} / {totalPages}
+                        </span>
 
-                        <button className="px-3 py-1.5 rounded border bg-white text-sm">
+                        <button
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1.5 rounded border bg-white text-sm">
                             Siguiente
                         </button>
                     </div>

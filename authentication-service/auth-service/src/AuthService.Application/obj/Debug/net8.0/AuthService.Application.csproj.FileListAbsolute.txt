@@ -9,8 +9,8 @@ C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\o
 C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.AssemblyInfo.cs
 C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.csproj.CoreCompileInputs.cache
 C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.sourcelink.json
-C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.csproj.CopyComplete
 C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.dll
 C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\refint\AuthService.Application.dll
 C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthService.Application.pdb
 C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\ref\AuthService.Application.dll
+C:\kinal-sport\authentication-service\auth-service\src\AuthService.Application\obj\Debug\net8.0\AuthServ.67992DEE.Up2Date

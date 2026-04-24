@@ -1,0 +1,72 @@
+[{
+  "_id": {
+    "$oid": "69d68b28da22b4a4edbb969a"
+  },
+  "fieldName": "Cancha C",
+  "fieldType": "SINTETICA",
+  "capacity": "FUTBOL_5",
+  "pricePerHour": 100,
+  "description": "campo 22222",
+  "photo": "https://res.cloudinary.com/dqx1m6nxh/image/upload/v1775668008/kinalSports/fields/img1-3c6fb89e.jpg",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-08T17:06:48.082Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-08T17:06:48.082Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69e9434065f1e1b213c1dc22"
+  },
+  "fieldName": "Cancha de Fútbol B",
+  "fieldType": "SINTETICA",
+  "capacity": "FUTBOL_7",
+  "pricePerHour": 150,
+  "description": "Cancha de fútbol 5 urbano",
+  "photo": "https://res.cloudinary.com/dqx1m6nxh/image/upload/v1776894782/kinalSports/fields/logo-barcelona-7ff59e9a.png",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-22T21:53:04.572Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-22T21:53:04.572Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69e9435765f1e1b213c1dc24"
+  },
+  "fieldName": "Cancha de Fútbol C",
+  "fieldType": "SINTETICA",
+  "capacity": "FUTBOL_11",
+  "pricePerHour": 150,
+  "description": "Cancha de fútbol 11",
+  "photo": "https://res.cloudinary.com/dqx1m6nxh/image/upload/v1776894805/kinalSports/fields/logo-barcelona-2b58cf09.png",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-22T21:53:27.645Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-22T21:53:27.645Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "69e9436c65f1e1b213c1dc26"
+  },
+  "fieldName": "Cancha de Fútbol D",
+  "fieldType": "CONCRETO",
+  "capacity": "FUTBOL_5",
+  "pricePerHour": 110,
+  "description": "Cancha de fútbol 5",
+  "photo": "https://res.cloudinary.com/dqx1m6nxh/image/upload/v1776894826/kinalSports/fields/logo-barcelona-484d3622.png",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-04-22T21:53:48.285Z"
+  },
+  "updatedAt": {
+    "$date": "2026-04-22T21:53:48.285Z"
+  }
+}]
