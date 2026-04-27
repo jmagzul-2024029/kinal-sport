@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 import dotenv from 'dotenv';
 import { initServer } from './configs/app.js';
 
@@ -7,7 +9,6 @@ dotenv.config();
 // Manejar errores no capturados
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception in Admin Server:', err);
-  process.exit(1);
 });
 
 // Manejar promesas rechazadas no manejadas

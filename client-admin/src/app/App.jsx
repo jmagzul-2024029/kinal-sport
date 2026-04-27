@@ -1,3 +1,4 @@
+import { ConfirmModal } from "../shared/components/ui/ConfirmModl.jsx";
 import { AppRoutes } from "./router/AppRoutes.jsx";
 import { Toaster } from "react-hot-toast"
 
@@ -16,6 +17,7 @@ export const App = () => {
         }}
       />
       <AppRoutes />
+      <ConfirmModal />
     </>
   )
 }
