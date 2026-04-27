@@ -1,0 +1,13 @@
+# .NET
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.log
+
+# logs
+logs/
+
+# claves sensibles
+keys/
